@@ -19,14 +19,14 @@ const nav = [
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
-function Brand() {
+function Brand({ onNavigate }: { onNavigate?: () => void }) {
   return (
-    <div className="flex items-center gap-2.5 px-2">
+    <Link href="/" onClick={onNavigate} className="flex items-center gap-2.5 px-2">
       <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white p-1.5 shadow-sm ring-1 ring-black/5">
         <Image src="/logo.png" alt="Logo" width={36} height={36} className="h-full w-full object-contain" />
       </div>
       <span className="font-semibold tracking-tight">{process.env.NEXT_PUBLIC_APP_NAME ?? "AI Receptionist"}</span>
-    </div>
+    </Link>
   );
 }
 
@@ -99,7 +99,7 @@ export function MobileNav({ userEmail }: { userEmail?: string }) {
           </SheetTrigger>
           <SheetContent side="left" className="glass flex w-72 flex-col gap-6 border-0 px-3 py-5">
             <SheetTitle className="sr-only">Menu</SheetTitle>
-            <Brand />
+            <Brand onNavigate={() => setOpen(false)} />
             <NavLinks onNavigate={() => setOpen(false)} />
             <UserFooter email={userEmail} />
           </SheetContent>

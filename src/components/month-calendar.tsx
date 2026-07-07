@@ -112,7 +112,7 @@ export function MonthCalendar({ month, items }: { month: string; items: CalItem[
           {selectedItems.map((it) => (
             <Link
               key={it.id}
-              href={it.contactId ? `/clients/${it.contactId}` : "#"}
+              href={it.contactId ? `/clients/${it.contactId}?from=appointments` : "#"}
               className="block rounded-lg border p-3 text-sm transition-colors hover:bg-accent"
             >
               <div className="flex items-center justify-between">

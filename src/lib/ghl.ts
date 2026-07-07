@@ -120,6 +120,14 @@ export function getCallLog(callId: string) {
   return ghl<CallLog>(`/voice-ai/dashboard/call-logs/${callId}`, { locationId: LOCATION_ID });
 }
 
+// Call recordings live on the conversations API (audio stream, older Version header).
+export function fetchRecording(messageId: string) {
+  return fetch(`${BASE}/conversations/messages/${messageId}/locations/${LOCATION_ID}/recording`, {
+    headers: { Authorization: `Bearer ${TOKEN}`, Version: "2021-04-15" },
+    cache: "no-store",
+  });
+}
+
 // ---- Calendars & appointments ----
 export function listCalendars() {
   return ghl<{ calendars: { id: string; name?: string }[] }>("/calendars/", { locationId: LOCATION_ID });
