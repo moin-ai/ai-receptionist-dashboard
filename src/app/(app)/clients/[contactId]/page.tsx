@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarDays, Mail, MapPin, MessageSquareText, Phone, StickyNote } from "lucide-react";
+import { ArrowLeft, CalendarDays, Mail, MapPin, Maximize2, MessageSquareText, Phone, StickyNote } from "lucide-react";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { LeadEditor } from "@/components/lead-editor";
 import { RecordingPlayer } from "@/components/recording-player";
@@ -34,6 +36,36 @@ function InfoRow({ icon: Icon, label, value }: { icon: typeof Phone; label: stri
       </div>
     </div>
   );
+}
+
+function ConversationFeed({ calls }: { calls: CallLog[] }) {
+  return calls.map((c) => {
+    const lines = parseTranscript(c.transcript);
+    return (
+      <div key={c.id} className="space-y-3">
+        <div className="flex items-center gap-3 pt-1">
+          <Separator className="flex-1" />
+          <span className="whitespace-nowrap text-xs text-muted-foreground">
+            {c.createdAt ? format(new Date(c.createdAt), "MMM d, yyyy · h:mm a") : "Call"}
+          </span>
+          <Separator className="flex-1" />
+        </div>
+        {lines.length === 0 && <p className="text-center text-sm text-muted-foreground">No transcript for this call.</p>}
+        {lines.map((l, i) => (
+          <div key={i} className={l.role === "human" ? "flex justify-end" : "flex justify-start"}>
+            <div
+              className={
+                "max-w-[80%] rounded-2xl px-3 py-2 text-sm " +
+                (l.role === "human" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground")
+              }
+            >
+              {l.text}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  });
 }
 
 export default async function ClientDetailPage({
@@ -167,35 +199,24 @@ export default async function ClientDetailPage({
               <Card className="flex min-h-0 flex-1 flex-col overflow-hidden">
                 <CardHeader className="shrink-0">
                   <CardTitle className="text-base">Conversation</CardTitle>
+                  <CardAction>
+                    <Dialog>
+                      <DialogTrigger render={<Button variant="ghost" size="icon-sm" aria-label="Expand conversation" />}>
+                        <Maximize2 className="h-4 w-4" />
+                      </DialogTrigger>
+                      <DialogContent className="flex h-[85vh] flex-col sm:max-w-3xl">
+                        <DialogHeader>
+                          <DialogTitle>Conversation — {name}</DialogTitle>
+                        </DialogHeader>
+                        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-2">
+                          <ConversationFeed calls={calls} />
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </CardAction>
                 </CardHeader>
                 <CardContent className="max-h-[65vh] min-h-0 flex-1 space-y-3 overflow-y-auto lg:max-h-none">
-                  {calls.map((c) => {
-                    const lines = parseTranscript(c.transcript);
-                    return (
-                      <div key={c.id} className="space-y-3">
-                        <div className="flex items-center gap-3 pt-1">
-                          <Separator className="flex-1" />
-                          <span className="whitespace-nowrap text-xs text-muted-foreground">
-                            {c.createdAt ? format(new Date(c.createdAt), "MMM d, yyyy · h:mm a") : "Call"}
-                          </span>
-                          <Separator className="flex-1" />
-                        </div>
-                        {lines.length === 0 && <p className="text-center text-sm text-muted-foreground">No transcript for this call.</p>}
-                        {lines.map((l, i) => (
-                          <div key={i} className={l.role === "human" ? "flex justify-end" : "flex justify-start"}>
-                            <div
-                              className={
-                                "max-w-[80%] rounded-2xl px-3 py-2 text-sm " +
-                                (l.role === "human" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground")
-                              }
-                            >
-                              {l.text}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  })}
+                  <ConversationFeed calls={calls} />
                 </CardContent>
               </Card>
             </>
